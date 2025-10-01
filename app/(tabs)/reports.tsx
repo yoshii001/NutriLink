@@ -108,57 +108,6 @@ export default function ReportsScreen() {
       style={styles.container}
       refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
     >
-      <View style={styles.header}>
-        <Text style={styles.title}>Reports & Analytics</Text>
-        <Text style={styles.subtitle}>Comprehensive system insights</Text>
-      </View>
-
-      <View style={styles.liveStatsSection}>
-        <Text style={styles.sectionTitle}>Live Statistics</Text>
-
-        <View style={styles.statsRow}>
-          <View style={[styles.statCard, { backgroundColor: '#E3F2FD' }]}>
-            <TrendingUp color="#1976D2" size={24} />
-            <Text style={styles.statCardValue}>{liveStats.totalMeals}</Text>
-            <Text style={styles.statCardLabel}>Total Meals</Text>
-          </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#E8F5E9' }]}>
-            <DollarSign color="#388E3C" size={24} />
-            <Text style={styles.statCardValue}>${liveStats.totalDonations}</Text>
-            <Text style={styles.statCardLabel}>Donations</Text>
-          </View>
-        </View>
-
-        <View style={styles.statsRow}>
-          <View style={[styles.statCard, { backgroundColor: '#FFF3E0' }]}>
-            <MessageSquare color="#F57C00" size={24} />
-            <Text style={styles.statCardValue}>{liveStats.totalFeedback}</Text>
-            <Text style={styles.statCardLabel}>Feedback</Text>
-          </View>
-
-          <View style={[styles.statCard, { backgroundColor: '#F3E5F5' }]}>
-            <Users color="#7B1FA2" size={24} />
-            <Text style={styles.statCardValue}>{liveStats.totalSchools}</Text>
-            <Text style={styles.statCardLabel}>Schools</Text>
-          </View>
-        </View>
-
-        <View style={styles.periodStats}>
-          <View style={styles.periodStatItem}>
-            <Text style={styles.periodValue}>{liveStats.weekMeals}</Text>
-            <Text style={styles.periodLabel}>Meals This Week</Text>
-          </View>
-          <View style={styles.periodStatItem}>
-            <Text style={styles.periodValue}>{liveStats.monthMeals}</Text>
-            <Text style={styles.periodLabel}>Meals This Month</Text>
-          </View>
-          <View style={styles.periodStatItem}>
-            <Text style={styles.periodValue}>{liveStats.pendingFeedback}</Text>
-            <Text style={styles.periodLabel}>Pending Feedback</Text>
-          </View>
-        </View>
-      </View>
 
       <View style={styles.content}>
         <View style={styles.sectionHeader}>
@@ -231,82 +180,15 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#f5f5f5',
   },
-  header: {
-    backgroundColor: '#007AFF',
-    padding: 20,
-    paddingTop: 60,
-  },
-  title: {
-    fontSize: 28,
-    fontFamily: 'Inter-Bold',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 14,
-    fontFamily: 'Inter-Regular',
-    color: '#E3F2FD',
-  },
-  liveStatsSection: {
-    backgroundColor: '#fff',
-    padding: 16,
-    marginBottom: 8,
-  },
   sectionTitle: {
     fontSize: 18,
     fontFamily: 'Inter-SemiBold',
     color: '#333',
     marginBottom: 16,
   },
-  statsRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-  },
-  statCard: {
-    flex: 1,
-    padding: 16,
-    borderRadius: 12,
-    alignItems: 'center',
-  },
-  statCardValue: {
-    fontSize: 24,
-    fontFamily: 'Inter-Bold',
-    color: '#333',
-    marginTop: 8,
-  },
-  statCardLabel: {
-    fontSize: 12,
-    fontFamily: 'Inter-Regular',
-    color: '#666',
-    marginTop: 4,
-    textAlign: 'center',
-  },
-  periodStats: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    paddingTop: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#eee',
-    marginTop: 8,
-  },
-  periodStatItem: {
-    alignItems: 'center',
-  },
-  periodValue: {
-    fontSize: 20,
-    fontFamily: 'Inter-Bold',
-    color: '#007AFF',
-  },
-  periodLabel: {
-    fontSize: 11,
-    fontFamily: 'Inter-Regular',
-    color: '#666',
-    marginTop: 4,
-    textAlign: 'center',
-  },
   content: {
     padding: 16,
+    paddingTop: 20,
   },
   sectionHeader: {
     flexDirection: 'row',

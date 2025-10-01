@@ -17,7 +17,6 @@ export default function TabLayout() {
     switch (userData.role) {
       case 'admin':
         return [
-          { name: 'dashboard', title: 'Dashboard', icon: LayoutDashboard },
           { name: 'admin-dashboard', title: 'Admin', icon: Settings },
           { name: 'donations', title: 'Donations', icon: DollarSign },
           { name: 'feedback', title: 'Feedback', icon: MessageSquare },
