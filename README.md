@@ -388,23 +388,42 @@ Parents of students who can provide feedback on meal programs.
 
 ## Environment Variables
 
-Create a `.env` file in the root directory:
+Create a `.env` file in the root directory. Only Firebase environment variables are required for the default setup:
 
 ```env
-# Supabase Configuration (if using)
-EXPO_PUBLIC_SUPABASE_URL=your_supabase_url
-EXPO_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-
 # Firebase Configuration
 EXPO_PUBLIC_FIREBASE_API_KEY=your_api_key
 EXPO_PUBLIC_FIREBASE_AUTH_DOMAIN=your_auth_domain
 EXPO_PUBLIC_FIREBASE_DATABASE_URL=your_database_url
 EXPO_PUBLIC_FIREBASE_PROJECT_ID=your_project_id
 EXPO_PUBLIC_FIREBASE_STORAGE_BUCKET=your_storage_bucket
-EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+EXPO_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
 EXPO_PUBLIC_FIREBASE_APP_ID=your_app_id
 EXPO_PUBLIC_FIREBASE_MEASUREMENT_ID=your_measurement_id
 ```
+
+### Local development & secrets
+
+For local development copy the example file and fill in your keys. Do not commit real secrets.
+
+PowerShell (copy):
+
+```powershell
+copy .env.example .env
+```
+
+If you use the `dotenv` approach, `app.config.ts` already imports `dotenv/config` so the variables in `.env` will be available when running Expo locally.
+
+For production or CI builds use EAS secrets so sensitive values are not checked into source control. Example (EAS CLI):
+
+```powershell
+# create a secret for the EXPO_PUBLIC_FIREBASE_API_KEY
+eas secret:create --name EXPO_PUBLIC_FIREBASE_API_KEY --value "<your_api_key>"
+
+# then reference secrets in your eas.json build profile or via EAS environment variables
+```
+
+See Expo/EAS docs for more on secrets and environment configuration.
 
 ## Available Scripts
 
