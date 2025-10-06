@@ -232,7 +232,7 @@ export default function AdminDashboardScreen() {
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => router.push('/admin-users')}
+          onPress={() => router.push('/admin/users')}
           activeOpacity={0.8}
         >
           <LinearGradient
@@ -251,7 +251,7 @@ export default function AdminDashboardScreen() {
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => router.push('/admin-schools')}
+          onPress={() => router.push('/admin/schools')}
           activeOpacity={0.8}
         >
           <LinearGradient
@@ -272,7 +272,7 @@ export default function AdminDashboardScreen() {
 
         <TouchableOpacity
           style={styles.actionButton}
-          onPress={() => router.push('/admin-donations')}
+          onPress={() => router.push('/admin/donations')}
           activeOpacity={0.8}
         >
           <LinearGradient

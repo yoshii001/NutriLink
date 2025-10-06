@@ -99,7 +99,7 @@ export default function PrincipalDashboardScreen() {
           </Text>
           <TouchableOpacity
             style={styles.primaryButton}
-            onPress={() => router.push('/request-school')}
+            onPress={() => router.push('/principal/request-school')}
           >
             <Text style={styles.primaryButtonText}>Request School Addition</Text>
           </TouchableOpacity>
@@ -152,7 +152,7 @@ export default function PrincipalDashboardScreen() {
 
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => router.push('/manage-teachers')}
+            onPress={() => router.push('/principal/manage-teachers')}
           >
             <View style={styles.actionIcon}>
               <Users color="#007AFF" size={24} />
@@ -166,7 +166,7 @@ export default function PrincipalDashboardScreen() {
 
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => router.push('/meal-plans')}
+            onPress={() => router.push('/principal/meal-plans')}
           >
             <View style={styles.actionIcon}>
               <Calendar color="#34C759" size={24} />
@@ -178,7 +178,7 @@ export default function PrincipalDashboardScreen() {
             <ChevronRight color="#999" size={24} />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/donor-list')}>
+                    <TouchableOpacity style={styles.actionCard} onPress={() => router.push('/principal/donor-list')}>
             <View style={styles.actionIcon}>
               <DollarSign color="#FF9500" size={24} />
             </View>
@@ -191,7 +191,7 @@ export default function PrincipalDashboardScreen() {
 
           <TouchableOpacity
             style={styles.actionCard}
-            onPress={() => router.push('/request-donation')}
+            onPress={() => router.push('/principal/request-donation')}
           >
             <View style={styles.actionIcon}>
               <Plus color="#FF3B30" size={24} />
