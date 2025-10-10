@@ -85,16 +85,22 @@ nutrilink/
 │   ├── login.tsx                # Login screen
 │   ├── profile.tsx              # User profile management
 │   ├── settings.tsx             # App settings
-│   ├── request-school.tsx       # Principal school registration
-│   ├── request-donation.tsx     # Donation request creation
-│   ├── manage-teachers.tsx      # Teacher management (Principal)
-│   ├── donor-list.tsx           # List of available donation requests
-│   ├── meal-plans.tsx           # Meal plan creation/management
-│   ├── admin-schools.tsx        # School approval (Admin)
-│   ├── admin-users.tsx          # User management (Admin)
-│   ├── admin-donations.tsx      # Donation oversight (Admin)
-│   ├── principal-dashboard.tsx  # Principal overview
 │   ├── +not-found.tsx           # 404 error page
+│   ├── admin/                   # Admin stakeholder routes
+│   │   ├── users.tsx           # User management
+│   │   ├── schools.tsx         # School approval
+│   │   └── donations.tsx       # Donation oversight
+│   ├── principal/               # Principal stakeholder routes
+│   │   ├── dashboard.tsx       # Main dashboard
+│   │   ├── manage-teachers.tsx # Teacher management
+│   │   ├── donor-list.tsx      # View donors
+│   │   ├── meal-plans.tsx      # Meal planning
+│   │   ├── request-school.tsx  # Register school
+│   │   └── request-donation.tsx # Request donations
+│   ├── donor/                   # Donor stakeholder routes
+│   │   └── index.tsx           # Donor home (placeholder)
+│   ├── parent/                  # Parent stakeholder routes
+│   │   └── index.tsx           # Parent home (placeholder)
 │   └── (tabs)/                  # Tab-based navigation
 │       ├── _layout.tsx          # Tab configuration with role-based tabs
 │       ├── dashboard.tsx        # Main dashboard (all roles)
@@ -146,8 +152,28 @@ nutrilink/
 ├── .env                         # Environment variables
 ├── app.json                     # Expo configuration
 ├── package.json                 # Dependencies and scripts
-└── tsconfig.json               # TypeScript configuration
+├── tsconfig.json               # TypeScript configuration
+├── MIGRATION_GUIDE.md          # Migration guide for refactor
+└── REFACTOR_SUMMARY.md         # Summary of stakeholder-based refactor
 ```
+
+### Stakeholder-Based Organization
+
+The app routes are organized by stakeholder type for clarity and maintainability:
+
+- **`app/admin/`** - Admin-specific routes (users, schools, donations management)
+- **`app/principal/`** - Principal-specific routes (dashboard, teachers, meal plans, donations)
+- **`app/donor/`** - Donor-specific routes (donation browsing and contribution)
+- **`app/parent/`** - Parent-specific routes (feedback submission)
+- **`app/(tabs)/`** - Shared tab navigation across all roles
+
+This structure provides:
+- ✅ Clear separation of concerns by user role
+- ✅ Easier navigation and maintenance
+- ✅ Automatic route generation: `/admin/users`, `/principal/dashboard`, etc.
+- ✅ Role-based access control at the folder level
+
+For details on the migration to this structure, see [`MIGRATION_GUIDE.md`](./MIGRATION_GUIDE.md) and [`REFACTOR_SUMMARY.md`](./REFACTOR_SUMMARY.md).
 
 ## User Roles & Functionalities
 
@@ -165,13 +191,13 @@ The system administrator with full access to all features.
 - Monitor meal tracking across all schools
 
 **Primary Screens:**
-- Admin Dashboard
-- School Management (`admin-schools.tsx`)
-- User Management (`admin-users.tsx`)
-- Donation Oversight (`admin-donations.tsx`)
-- Inventory Management
-- Feedback Review
-- Reports
+- Admin Dashboard (`app/(tabs)/admin-dashboard.tsx`)
+- School Management (`app/admin/schools.tsx`)
+- User Management (`app/admin/users.tsx`)
+- Donation Oversight (`app/admin/donations.tsx`)
+- Inventory Management (`app/(tabs)/inventory.tsx`)
+- Feedback Review (`app/(tabs)/feedback.tsx`)
+- Reports (`app/(tabs)/reports.tsx`)
 
 ### 2. Principal
 School administrators who manage their school's meal programs.
@@ -187,14 +213,15 @@ School administrators who manage their school's meal programs.
 - Approve meal plans before implementation
 
 **Primary Screens:**
-- Principal Dashboard (`principal-dashboard.tsx`)
-- School Registration (`request-school.tsx`)
-- Meal Planning (`meal-plans.tsx`)
-- Teacher Management (`manage-teachers.tsx`)
-- Donation Requests (`request-donation.tsx`)
-- Menu Planning
-- Inventory Management
-- Reports
+- Principal Dashboard (`app/principal/dashboard.tsx`)
+- School Registration (`app/principal/request-school.tsx`)
+- Meal Planning (`app/principal/meal-plans.tsx`)
+- Teacher Management (`app/principal/manage-teachers.tsx`)
+- Donation Requests (`app/principal/request-donation.tsx`)
+- Donor List (`app/principal/donor-list.tsx`)
+- Menu Planning (`app/(tabs)/menu.tsx`)
+- Inventory Management (`app/(tabs)/inventory.tsx`)
+- Reports (`app/(tabs)/reports.tsx`)
 
 ### 3. Teacher
 Classroom educators who track daily meal distribution.
@@ -208,9 +235,9 @@ Classroom educators who track daily meal distribution.
 - View daily meal assignments
 
 **Primary Screens:**
-- Dashboard
-- Meal Tracking (`tracking.tsx`)
-- Meal History (`history.tsx`)
+- Dashboard (`app/(tabs)/dashboard.tsx`)
+- Meal Tracking (`app/(tabs)/tracking.tsx`)
+- Meal History (`app/(tabs)/history.tsx`)
 
 ### 4. Donor
 Individuals or organizations who contribute financially to meal programs.
@@ -224,9 +251,9 @@ Individuals or organizations who contribute financially to meal programs.
 - Receive acknowledgments for donations
 
 **Primary Screens:**
-- Dashboard
-- Donation Requests List (`donor-list.tsx`)
-- My Donations (`donations.tsx`)
+- Dashboard (`app/(tabs)/dashboard.tsx`)
+- Donation Requests List (`app/principal/donor-list.tsx`)
+- My Donations (`app/(tabs)/donations.tsx`)
 
 ### 5. Parent
 Parents of students who can provide feedback on meal programs.
@@ -464,8 +491,12 @@ app/(tabs)/
 
 ### Route Structure
 
-The app uses Expo Router's file-based routing:
+The app uses Expo Router's file-based routing with stakeholder-based organization:
 - Files in `app/` directory become routes
+- Stakeholder folders create namespaced routes:
+  - `app/admin/users.tsx` → `/admin/users`
+  - `app/principal/dashboard.tsx` → `/principal/dashboard`
+  - `app/principal/meal-plans.tsx` → `/principal/meal-plans`
 - `(tabs)/` is a group route for tab navigation
 - `_layout.tsx` files configure navigation structure
 - Files starting with `+` are special (e.g., `+not-found.tsx`)
