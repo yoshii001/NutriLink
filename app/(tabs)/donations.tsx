@@ -10,6 +10,35 @@ export default function DonationsScreen() {
   const [donations, setDonations] = useState<Record<string, Donation>>({});
   const [refreshing, setRefreshing] = useState(false);
 
+  const loadDonations = async () => {
+    try {
+      const data = await getAllDonations();
+      setDonations(data);
+    } catch (error) {
+      console.error('Error loading donations:', error);
+    }
+  };
+
+  // Keep hooks and effects at top-level to preserve hook order. The effect
+  // will only fetch data when the user is present and authorized.
+  useEffect(() => {
+    if (!userData) return;
+    if (userData.role !== 'donor' && userData.role !== 'admin') return;
+    loadDonations();
+    // We intentionally don't include loadDonations in deps to avoid re-creating
+    // the function; userData changes will re-run this effect when auth state updates.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData]);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await loadDonations();
+    setRefreshing(false);
+  };
+
+  const totalDonations = Object.values(donations).reduce((sum, d) => sum + d.amount, 0);
+  const totalMeals = Object.values(donations).reduce((sum, d) => sum + d.mealContribution, 0);
+
   if (!userData || (userData.role !== 'donor' && userData.role !== 'admin')) {
     return (
       <View style={styles.container}>
@@ -20,28 +49,6 @@ export default function DonationsScreen() {
       </View>
     );
   }
-
-  const loadDonations = async () => {
-    try {
-      const data = await getAllDonations();
-      setDonations(data);
-    } catch (error) {
-      console.error('Error loading donations:', error);
-    }
-  };
-
-  useEffect(() => {
-    loadDonations();
-  }, []);
-
-  const onRefresh = async () => {
-    setRefreshing(true);
-    await loadDonations();
-    setRefreshing(false);
-  };
-
-  const totalDonations = Object.values(donations).reduce((sum, d) => sum + d.amount, 0);
-  const totalMeals = Object.values(donations).reduce((sum, d) => sum + d.mealContribution, 0);
 
   return (
     <ScrollView
