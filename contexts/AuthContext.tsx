@@ -1,13 +1,14 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User as FirebaseUser } from 'firebase/auth';
 import { User } from '@/types';
-import { onAuthChange, getCurrentUser, getUserData, signIn as firebaseSignIn, signOut as firebaseSignOut } from '@/services/firebase/authService';
+import { onAuthChange, getCurrentUser, getUserData, signIn as firebaseSignIn, signUp as firebaseSignUp, signOut as firebaseSignOut } from '@/services/firebase/authService';
 
 interface AuthContextType {
   user: FirebaseUser | null;
   userData: User | null;
   loading: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string, role: 'principal' | 'donor') => Promise<void>;
   signOut: () => Promise<void>;
 }
 
@@ -40,6 +41,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUserData(data);
   };
 
+  const signUp = async (email: string, password: string, name: string, role: 'principal' | 'donor') => {
+    const data = await firebaseSignUp(email, password, name, role);
+    setUserData(data);
+  };
+
   const signOut = async () => {
     await firebaseSignOut();
     setUser(null);
@@ -47,7 +53,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   return (
-    <AuthContext.Provider value={{ user, userData, loading, signIn, signOut }}>
+    <AuthContext.Provider value={{ user, userData, loading, signIn, signUp, signOut }}>
       {children}
     </AuthContext.Provider>
   );

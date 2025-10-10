@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword, signOut as firebaseSignOut, User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
+import { signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut as firebaseSignOut, User as FirebaseUser, onAuthStateChanged } from 'firebase/auth';
 import { ref, get, set, update } from 'firebase/database';
 import { auth, database } from '@/config/firebase';
 import { User } from '@/types';
@@ -16,6 +16,23 @@ export const signIn = async (email: string, password: string): Promise<User> => 
   await set(ref(database, `users/${userCredential.user.uid}/lastLogin`), new Date().toISOString());
 
   return { ...userData, email: userCredential.user.email || email };
+};
+
+export const signUp = async (email: string, password: string, name: string, role: 'principal' | 'donor'): Promise<User> => {
+  const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+  const uid = userCredential.user.uid;
+
+  const userData: User = {
+    email,
+    name,
+    role,
+    createdAt: new Date().toISOString(),
+  };
+
+  await set(ref(database, `users/${uid}`), userData);
+  await set(ref(database, `users/${uid}/lastLogin`), new Date().toISOString());
+
+  return userData;
 };
 
 export const signOut = async (): Promise<void> => {

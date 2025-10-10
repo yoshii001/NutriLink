@@ -111,6 +111,13 @@ export default function LoginScreen() {
                 </Text>
               </LinearGradient>
             </TouchableOpacity>
+
+            <View style={styles.signupSection}>
+              <Text style={styles.signupText}>New to NutriLink?</Text>
+              <TouchableOpacity onPress={() => router.push('/signup')}>
+                <Text style={styles.signupLink}>Create Account</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
@@ -333,5 +340,22 @@ const styles = StyleSheet.create({
     marginTop: theme.spacing.md,
     textAlign: 'center',
     fontStyle: 'italic',
+  },
+  signupSection: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: theme.spacing.lg,
+    gap: theme.spacing.sm,
+  },
+  signupText: {
+    fontSize: 16,
+    fontFamily: 'Inter-Regular',
+    color: theme.colors.text.secondary,
+  },
+  signupLink: {
+    fontSize: 16,
+    fontFamily: 'Inter-SemiBold',
+    color: theme.colors.primary,
   },
 });
