@@ -32,6 +32,11 @@ export const signUp = async (email: string, password: string, name: string, role
   await set(ref(database, `users/${uid}`), userData);
   await set(ref(database, `users/${uid}/lastLogin`), new Date().toISOString());
 
+  // Newly created Firebase users are automatically signed in. For workflows
+  // that require users to confirm or explicitly sign in, sign them out here
+  // so the app can direct them to the login screen.
+  await firebaseSignOut(auth);
+
   return userData;
 };
 
