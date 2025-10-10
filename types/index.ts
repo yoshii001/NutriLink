@@ -14,6 +14,20 @@ export interface Student {
   mealServed: boolean;
   time: string;
   photoUrl: string | null;
+  // Optional feedback fields for meal reactions and health observations
+  mealReaction?: 'happy' | 'little' | 'none';
+  healthObservation?: 'tired' | 'sick' | 'active' | null;
+  notes?: string;
+}
+
+export interface StudentProfile {
+  name: string;
+  age: number;
+  grade: string;
+  parentName: string;
+  parentContact: string;
+  parentEmail?: string;
+  createdAt?: string;
 }
 
 export interface MealTracking {
