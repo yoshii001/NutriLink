@@ -42,8 +42,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string, name: string, role: 'principal' | 'donor') => {
-    const data = await firebaseSignUp(email, password, name, role);
-    setUserData(data);
+    // Create the user record. The authService will sign the user out after
+    // creating the account so they must explicitly sign in. We therefore do
+    // not set userData here.
+    await firebaseSignUp(email, password, name, role);
   };
 
   const signOut = async () => {

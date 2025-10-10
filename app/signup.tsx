@@ -58,11 +58,12 @@ export default function SignUpScreen() {
         ? 'Your principal account has been created successfully. You can now request to add your school.'
         : 'Your donor account has been created successfully. You can now start supporting schools in need.';
       
-      Alert.alert(
-        'Success!',
-        successMessage,
-        [{ text: 'OK', onPress: () => router.replace('/(tabs)/dashboard') }]
-      );
+      // Immediately navigate to the login screen so the user can sign in.
+      router.replace('/login');
+
+      // Also show a confirmation alert that the account was created.
+      // (No navigation in the alert callback to avoid platform inconsistencies.)
+      Alert.alert('Success!', successMessage);
     } catch (error: any) {
       let errorMessage = 'Failed to create account';
       
