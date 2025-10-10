@@ -1,34 +1,52 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, RefreshControl, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
+import { LinearGradient } from 'expo-linear-gradient';
 import { getAllDonations } from '@/services/firebase/donationService';
-import { Donation } from '@/types';
-import { DollarSign, Heart } from 'lucide-react-native';
+import { getAvailablePublishedDonations } from '@/services/firebase/publishedDonationService';
+import { getActiveDonationRequests } from '@/services/firebase/donationRequestService';
+import { Donation, PublishedDonation, DonationRequest } from '@/types';
+import { DollarSign, Heart, Package, Bell, Plus, List, Settings } from 'lucide-react-native';
 import { useAuth } from '@/contexts/AuthContext';
+import { theme } from '@/constants/theme';
 
 export default function DonationsScreen() {
-  const { userData } = useAuth();
+  const router = useRouter();
+  const { userData, user } = useAuth();
   const [donations, setDonations] = useState<Record<string, Donation>>({});
+  const [publishedDonations, setPublishedDonations] = useState<Record<string, PublishedDonation>>({});
+  const [requests, setRequests] = useState<Record<string, DonationRequest>>({});
   const [refreshing, setRefreshing] = useState(false);
+
+  if (!userData || (userData.role !== 'donor' && userData.role !== 'admin')) {
+    return (
+      <View style={styles.container}>
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorText}>Access Denied</Text>
+          <Text style={styles.errorSubtext}>You don't have permission to view this page.</Text>
+        </View>
+      </View>
+    );
+  }
 
   const loadDonations = async () => {
     try {
-      const data = await getAllDonations();
-      setDonations(data);
+      const [donationsData, publishedData, requestsData] = await Promise.all([
+        getAllDonations(),
+        getAvailablePublishedDonations(),
+        getActiveDonationRequests(),
+      ]);
+      setDonations(donationsData);
+      setPublishedDonations(publishedData);
+      setRequests(requestsData);
     } catch (error) {
       console.error('Error loading donations:', error);
     }
   };
 
-  // Keep hooks and effects at top-level to preserve hook order. The effect
-  // will only fetch data when the user is present and authorized.
   useEffect(() => {
-    if (!userData) return;
-    if (userData.role !== 'donor' && userData.role !== 'admin') return;
     loadDonations();
-    // We intentionally don't include loadDonations in deps to avoid re-creating
-    // the function; userData changes will re-run this effect when auth state updates.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userData]);
+  }, []);
 
   const onRefresh = async () => {
     setRefreshing(true);
@@ -39,14 +57,133 @@ export default function DonationsScreen() {
   const totalDonations = Object.values(donations).reduce((sum, d) => sum + d.amount, 0);
   const totalMeals = Object.values(donations).reduce((sum, d) => sum + d.mealContribution, 0);
 
-  if (!userData || (userData.role !== 'donor' && userData.role !== 'admin')) {
+  if (userData.role === 'donor') {
     return (
-      <View style={styles.container}>
-        <View style={styles.errorContainer}>
-          <Text style={styles.errorText}>Access Denied</Text>
-          <Text style={styles.errorSubtext}>You don't have permission to view this page.</Text>
+      <ScrollView
+        style={styles.container}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={styles.content}>
+          <Text style={styles.title}>Donor Community</Text>
+
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Package size={28} color={theme.colors.primary} />
+              <Text style={styles.statValue}>{Object.keys(publishedDonations).length}</Text>
+              <Text style={styles.statLabel}>Available Items</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Bell size={28} color={theme.colors.accent} />
+              <Text style={styles.statValue}>{Object.keys(requests).length}</Text>
+              <Text style={styles.statLabel}>Active Requests</Text>
+            </View>
+          </View>
+
+          <View style={styles.actionCardsContainer}>
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push('/publish-donation')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={[theme.colors.primary, theme.colors.accent]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.actionCardGradient}
+              >
+                <View style={styles.actionCardIconContainer}>
+                  <Plus size={32} color={theme.colors.surface} strokeWidth={2.5} />
+                </View>
+                <Text style={styles.actionCardTitle}>Publish Donation</Text>
+                <Text style={styles.actionCardDescription}>
+                  Share what you can donate with schools
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push('/donation-requests')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={[theme.colors.secondary, theme.colors.accent]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.actionCardGradient}
+              >
+                <View style={styles.actionCardIconContainer}>
+                  <Bell size={32} color={theme.colors.surface} strokeWidth={2.5} />
+                </View>
+                <Text style={styles.actionCardTitle}>View Requests</Text>
+                <Text style={styles.actionCardDescription}>
+                  See what schools need from you
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push('/public-donations')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={[theme.colors.primaryDark, theme.colors.secondary]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.actionCardGradient}
+              >
+                <View style={styles.actionCardIconContainer}>
+                  <List size={32} color={theme.colors.surface} strokeWidth={2.5} />
+                </View>
+                <Text style={styles.actionCardTitle}>Browse Community</Text>
+                <Text style={styles.actionCardDescription}>
+                  See what others are donating
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.actionCard}
+              onPress={() => router.push('/my-donations')}
+              activeOpacity={0.8}
+            >
+              <LinearGradient
+                colors={[theme.colors.secondaryDark, theme.colors.primary]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={styles.actionCardGradient}
+              >
+                <View style={styles.actionCardIconContainer}>
+                  <Settings size={32} color={theme.colors.surface} strokeWidth={2.5} />
+                </View>
+                <Text style={styles.actionCardTitle}>Manage My Donations</Text>
+                <Text style={styles.actionCardDescription}>
+                  Edit or delete your published items
+                </Text>
+              </LinearGradient>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.sectionTitle}>About KidsFeed</Text>
+          <View style={styles.kidsfeedCardGradientWrap}>
+            <LinearGradient
+              colors={[theme.colors.primary, theme.colors.primaryDark]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.kidsfeedCardGradient}
+            >
+              <Text style={styles.kidsfeedTaglineGradient}>Connecting Communities, Nourishing Futures.</Text>
+              <Text style={styles.kidsfeedTextGradient}>
+                KidsFeed brings donors, schools and volunteers together to ensure nutritious meals reach children who need them most. Publish items, respond to requests, and see the difference your generosity makes.
+              </Text>
+              <TouchableOpacity onPress={() => router.push('/public-donations')} activeOpacity={0.7}>
+                <Text style={styles.kidsfeedLink}>Browse Community →</Text>
+              </TouchableOpacity>
+            </LinearGradient>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     );
   }
 
@@ -131,16 +268,107 @@ export default function DonationsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: theme.colors.background,
   },
   content: {
-    padding: 16,
+    padding: theme.spacing.md,
   },
   title: {
     fontSize: 24,
     fontFamily: 'Inter-Bold',
-    color: '#333',
-    marginBottom: 16,
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.md,
+  },
+  statsGrid: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+    marginBottom: theme.spacing.lg,
+  },
+  statCard: {
+    flex: 1,
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    alignItems: 'center',
+    ...theme.shadows.md,
+  },
+  statValue: {
+    fontSize: 28,
+    fontFamily: 'Inter-Bold',
+    color: theme.colors.text.primary,
+    marginTop: theme.spacing.xs,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-SemiBold',
+    color: theme.colors.text.secondary,
+    textAlign: 'center',
+    marginTop: theme.spacing.xs,
+  },
+  actionCardsContainer: {
+    marginBottom: theme.spacing.lg,
+  },
+  actionCard: {
+    borderRadius: theme.borderRadius.lg,
+    overflow: 'hidden',
+    marginBottom: theme.spacing.md,
+    ...theme.shadows.lg,
+  },
+  actionCardGradient: {
+    padding: theme.spacing.lg,
+    alignItems: 'center',
+  },
+  actionCardIconContainer: {
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: theme.spacing.md,
+  },
+  actionCardTitle: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: theme.colors.surface,
+    marginBottom: theme.spacing.xs,
+  },
+  actionCardDescription: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: theme.colors.surface,
+    opacity: 0.9,
+    textAlign: 'center',
+  },
+  impactCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    ...theme.shadows.md,
+  },
+  impactRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: theme.spacing.md,
+  },
+  impactContent: {
+    flex: 1,
+  },
+  impactValue: {
+    fontSize: 24,
+    fontFamily: 'Inter-Bold',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.xs,
+  },
+  impactLabel: {
+    fontSize: 13,
+    fontFamily: 'Inter-Regular',
+    color: theme.colors.text.secondary,
+  },
+  impactDivider: {
+    height: 1,
+    backgroundColor: theme.colors.border,
+    marginVertical: theme.spacing.md,
   },
   summaryCard: {
     backgroundColor: '#fff',
@@ -176,6 +404,119 @@ const styles = StyleSheet.create({
     fontFamily: 'Inter-SemiBold',
     color: '#333',
     marginBottom: 12,
+  },
+  kidsfeedCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    ...theme.shadows.md,
+    marginBottom: theme.spacing.lg,
+  },
+  kidsfeedTagline: {
+    fontSize: 16,
+    fontFamily: 'Inter-Bold',
+    color: theme.colors.primary,
+    marginBottom: theme.spacing.sm,
+  },
+  kidsfeedText: {
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.md,
+  },
+  kidsfeedActions: {
+    flexDirection: 'row',
+    gap: theme.spacing.sm,
+  },
+  kidsfeedButton: {
+    flex: 1,
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing.sm,
+    borderRadius: theme.borderRadius.md,
+    alignItems: 'center',
+  },
+  kidsfeedButtonSecondary: {
+    backgroundColor: theme.colors.surface,
+    borderWidth: 1,
+    borderColor: theme.colors.primary,
+  },
+  kidsfeedButtonText: {
+    color: theme.colors.surface,
+    fontFamily: 'Inter-SemiBold',
+  },
+  kidsfeedButtonTextSecondary: {
+    color: theme.colors.primary,
+  },
+  kidsfeedCardGradientWrap: {
+    marginBottom: theme.spacing.lg,
+    alignItems: 'center',
+  },
+  kidsfeedCardGradient: {
+    width: '100%',
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  kidsfeedTaglineGradient: {
+    color: theme.colors.surface,
+    fontSize: 18,
+    fontFamily: 'Inter-Bold',
+    marginBottom: theme.spacing.sm,
+    textAlign: 'center',
+  },
+  kidsfeedTextGradient: {
+    color: theme.colors.surface,
+    fontSize: 14,
+    fontFamily: 'Inter-Regular',
+    textAlign: 'center',
+    marginBottom: theme.spacing.md,
+    opacity: 0.95,
+  },
+  kidsfeedLink: {
+    color: theme.colors.surface,
+    textDecorationLine: 'underline',
+    fontFamily: 'Inter-SemiBold',
+  },
+  highlightsCard: {
+    backgroundColor: theme.colors.surface,
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    ...theme.shadows.md,
+    marginBottom: theme.spacing.lg,
+  },
+  highlightsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: theme.spacing.md,
+  },
+  highlightItem: {
+    flex: 1,
+    alignItems: 'center',
+  },
+  highlightValue: {
+    fontSize: 20,
+    fontFamily: 'Inter-Bold',
+    color: theme.colors.text.primary,
+  },
+  highlightLabel: {
+    fontSize: 12,
+    fontFamily: 'Inter-Regular',
+    color: theme.colors.text.secondary,
+    marginTop: theme.spacing.xs,
+    textAlign: 'center',
+  },
+  highlightCTA: {
+    marginTop: 8,
+    alignSelf: 'center',
+    backgroundColor: theme.colors.primary,
+    paddingVertical: theme.spacing.sm,
+    paddingHorizontal: theme.spacing.lg,
+    borderRadius: theme.borderRadius.md,
+  },
+  highlightCTAText: {
+    color: theme.colors.surface,
+    fontFamily: 'Inter-SemiBold',
   },
   card: {
     backgroundColor: '#fff',
