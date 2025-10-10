@@ -176,7 +176,7 @@ export default function DashboardScreen() {
         {userData?.role === 'principal' && (
           <TouchableOpacity
             style={styles.actionButton}
-            onPress={() => router.push('/principal-dashboard')}
+            onPress={() => router.push('/principal/dashboard')}
             activeOpacity={0.8}
           >
             <LinearGradient
