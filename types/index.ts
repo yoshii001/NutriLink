@@ -128,4 +128,48 @@ export interface DonationRequest {
   status: 'active' | 'fulfilled' | 'cancelled';
   createdAt: string;
   fulfilledAmount: number;
+  publishedDonationId?: string;
+}
+
+export interface PublishedDonation {
+  donorId: string;
+  donorName: string;
+  donorEmail: string;
+  itemName: string;
+  description: string;
+  quantity: number;
+  unit: string;
+  category: 'food' | 'supplies' | 'monetary' | 'other';
+  monetaryValue?: number;
+  availableFrom: string;
+  expiryDate?: string;
+  status: 'available' | 'reserved' | 'fulfilled';
+  createdAt: string;
+  updatedAt: string;
+  imageUrl?: string;
+  deliveryOptions: string[];
+  location?: string;
+}
+
+export interface DonationFulfillment {
+  donationRequestId: string;
+  publishedDonationId: string;
+  donorId: string;
+  principalId: string;
+  schoolId: string;
+  quantityFulfilled: number;
+  status: 'pending' | 'accepted' | 'rejected' | 'completed';
+  createdAt: string;
+  completedAt?: string;
+  notes?: string;
+}
+
+export interface MoneyDonationRecord {
+  donorId: string;
+  donorName?: string;
+  donorEmail?: string;
+  amount: number;
+  note?: string;
+  availableFrom?: string;
+  createdAt?: string;
 }
