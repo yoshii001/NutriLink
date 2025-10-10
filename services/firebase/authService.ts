@@ -18,14 +18,14 @@ export const signIn = async (email: string, password: string): Promise<User> => 
   return { ...userData, email: userCredential.user.email || email };
 };
 
-export const signUpPrincipal = async (email: string, password: string, name: string): Promise<User> => {
+export const signUp = async (email: string, password: string, name: string, role: 'principal' | 'donor'): Promise<User> => {
   const userCredential = await createUserWithEmailAndPassword(auth, email, password);
   const uid = userCredential.user.uid;
 
   const userData: User = {
     email,
     name,
-    role: 'principal',
+    role,
     createdAt: new Date().toISOString(),
   };
 

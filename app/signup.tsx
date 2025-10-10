@@ -2,18 +2,21 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert, ScrollView, Image } from 'react-native';
 import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Mail, Lock, User, Utensils, ArrowLeft } from 'lucide-react-native';
+import { Mail, Lock, User, Utensils, ArrowLeft, School, Heart } from 'lucide-react-native';
 import { useAuth } from '../contexts/AuthContext';
 import { theme } from '../constants/theme';
+
+type UserType = 'principal' | 'donor';
 
 export default function SignUpScreen() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [userType, setUserType] = useState<UserType>('principal');
   const [loading, setLoading] = useState(false);
   const [imageError, setImageError] = useState(false);
-  const { signUpPrincipal } = useAuth();
+  const { signUp } = useAuth();
   const router = useRouter();
 
   const validateForm = () => {
@@ -49,10 +52,15 @@ export default function SignUpScreen() {
 
     setLoading(true);
     try {
-      await signUpPrincipal(email.trim(), password, name.trim());
+      await signUp(email.trim(), password, name.trim(), userType);
+      
+      const successMessage = userType === 'principal' 
+        ? 'Your principal account has been created successfully. You can now request to add your school.'
+        : 'Your donor account has been created successfully. You can now start supporting schools in need.';
+      
       Alert.alert(
         'Success!',
-        'Your principal account has been created successfully. You can now request to add your school.',
+        successMessage,
         [{ text: 'OK', onPress: () => router.replace('/(tabs)/dashboard') }]
       );
     } catch (error: any) {
@@ -73,6 +81,36 @@ export default function SignUpScreen() {
       setLoading(false);
     }
   };
+
+  const getUserTypeInfo = (type: UserType) => {
+    if (type === 'principal') {
+      return {
+        title: 'Principal Account',
+        description: 'Manage your school\'s nutrition program',
+        benefits: [
+          'Request to add your school to the platform',
+          'Create and manage meal plans for your school',
+          'Request donations for your nutrition programs',
+          'Manage teachers and track meal distributions',
+          'View reports and analytics'
+        ]
+      };
+    } else {
+      return {
+        title: 'Donor Account',
+        description: 'Support schools and their nutrition programs',
+        benefits: [
+          'Browse donation requests from schools',
+          'Make monetary donations to support meal programs',
+          'Track your donation history and impact',
+          'Connect with schools in your community',
+          'Receive updates on how your donations help'
+        ]
+      };
+    }
+  };
+
+  const currentUserTypeInfo = getUserTypeInfo(userType);
 
   return (
     <View style={styles.container}>
@@ -99,13 +137,58 @@ export default function SignUpScreen() {
               <Utensils color="#fff" size={40} />
             </View>
           )}
-          <Text style={styles.title}>Create Principal Account</Text>
-          <Text style={styles.subtitle}>Join NutriLink to manage your school's nutrition program</Text>
+          <Text style={styles.title}>Create Your Account</Text>
+          <Text style={styles.subtitle}>Join NutriLink to make a difference in school nutrition</Text>
         </View>
       </LinearGradient>
 
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
+          {/* User Type Selection */}
+          <View style={styles.userTypeSection}>
+            <Text style={styles.sectionTitle}>I am a...</Text>
+            <View style={styles.userTypeOptions}>
+              <TouchableOpacity
+                style={[
+                  styles.userTypeOption,
+                  userType === 'principal' && styles.userTypeOptionSelected
+                ]}
+                onPress={() => setUserType('principal')}
+              >
+                <School 
+                  color={userType === 'principal' ? '#fff' : theme.colors.primary} 
+                  size={24} 
+                />
+                <Text style={[
+                  styles.userTypeText,
+                  userType === 'principal' && styles.userTypeTextSelected
+                ]}>
+                  School Principal
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.userTypeOption,
+                  userType === 'donor' && styles.userTypeOptionSelected
+                ]}
+                onPress={() => setUserType('donor')}
+              >
+                <Heart 
+                  color={userType === 'donor' ? '#fff' : theme.colors.primary} 
+                  size={24} 
+                />
+                <Text style={[
+                  styles.userTypeText,
+                  userType === 'donor' && styles.userTypeTextSelected
+                ]}>
+                  Donor
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Form Fields */}
           <View style={styles.inputContainer}>
             <View style={styles.inputIcon}>
               <User size={20} color={theme.colors.text.secondary} />
@@ -180,20 +263,19 @@ export default function SignUpScreen() {
               style={[styles.buttonGradient, loading && styles.buttonDisabled]}
             >
               <Text style={styles.buttonText}>
-                {loading ? 'Creating Account...' : 'Create Principal Account'}
+                {loading ? 'Creating Account...' : `Create ${currentUserTypeInfo.title}`}
               </Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
 
         <View style={styles.infoSection}>
-          <Text style={styles.infoTitle}>Principal Account Benefits</Text>
+          <Text style={styles.infoTitle}>{currentUserTypeInfo.title} Benefits</Text>
+          <Text style={styles.infoDescription}>{currentUserTypeInfo.description}</Text>
           <View style={styles.benefitsList}>
-            <Text style={styles.benefitItem}>• Request to add your school to the platform</Text>
-            <Text style={styles.benefitItem}>• Create and manage meal plans for your school</Text>
-            <Text style={styles.benefitItem}>• Request donations for your nutrition programs</Text>
-            <Text style={styles.benefitItem}>• Manage teachers and track meal distributions</Text>
-            <Text style={styles.benefitItem}>• View reports and analytics</Text>
+            {currentUserTypeInfo.benefits.map((benefit, index) => (
+              <Text key={index} style={styles.benefitItem}>• {benefit}</Text>
+            ))}
           </View>
         </View>
 
@@ -262,6 +344,48 @@ const styles = StyleSheet.create({
   form: {
     marginTop: theme.spacing.xl,
   },
+  userTypeSection: {
+    marginBottom: theme.spacing.xl,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+    marginBottom: theme.spacing.md,
+    textAlign: 'center',
+  },
+  userTypeOptions: {
+    flexDirection: 'row',
+    gap: theme.spacing.md,
+  },
+  userTypeOption: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderRadius: theme.borderRadius.lg,
+    padding: theme.spacing.lg,
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: theme.colors.border,
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+  },
+  userTypeOptionSelected: {
+    backgroundColor: theme.colors.primary,
+    borderColor: theme.colors.primary,
+  },
+  userTypeText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: theme.colors.text.primary,
+    marginTop: theme.spacing.sm,
+    textAlign: 'center',
+  },
+  userTypeTextSelected: {
+    color: '#fff',
+  },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -322,7 +446,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: theme.colors.text.primary,
+    marginBottom: theme.spacing.sm,
+  },
+  infoDescription: {
+    fontSize: 14,
+    color: theme.colors.text.secondary,
     marginBottom: theme.spacing.md,
+    fontStyle: 'italic',
   },
   benefitsList: {
     gap: theme.spacing.sm,

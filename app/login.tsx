@@ -113,7 +113,7 @@ export default function LoginScreen() {
             </TouchableOpacity>
 
             <View style={styles.signupSection}>
-              <Text style={styles.signupText}>New principal?</Text>
+              <Text style={styles.signupText}>New to NutriLink?</Text>
               <TouchableOpacity onPress={() => router.push('/signup')}>
                 <Text style={styles.signupLink}>Create Account</Text>
               </TouchableOpacity>
