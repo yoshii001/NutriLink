@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Mail, Lock, Utensils } from 'lucide-react-native';
 import { useAuth } from '../contexts/AuthContext';
+import { getCurrentUser, getUserData } from '../services/firebase/authService';
 import { theme } from '../constants/theme';
 
 export default function LoginScreen() {
@@ -23,6 +24,21 @@ export default function LoginScreen() {
     setLoading(true);
     try {
       await signIn(email, password);
+      // After sign-in, try to determine role from the freshly fetched user data and route accordingly.
+      try {
+        const current = getCurrentUser();
+        if (current) {
+          const data = await getUserData(current.uid);
+          const role = data?.role;
+          if (role === 'teacher') {
+            // cast to any to satisfy router typing for dynamic routes
+            router.replace('/teacher/dashboard' as any);
+            return;
+          }
+        }
+      } catch (e) {
+        // ignore and fallback
+      }
       router.replace('/(tabs)/dashboard');
     } catch (error: any) {
       Alert.alert('Login Failed', error.message || 'Invalid credentials');
